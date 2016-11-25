@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SouteTirza-pset4</string>
+    <string name="addItem">Task</string>
+    <string name="add">Add</string>
+    <string name="toDoList">To Do List</string>
+    <string name="instructions">Long-press an item to remove it </string>
+    <string name="checkDesc">Checkbox to denote whether something has been done</string>
+</resources>
