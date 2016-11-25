@@ -4,3 +4,5 @@
 
 
 This application allows the user to keep track of their to do list. They can add tasks, delete them by long-pressing and check them off. 
+
+<img src="https://cloud.githubusercontent.com/assets/9742900/20432717/c34a41fc-ada0-11e6-8e18-4c7b6b0ef756.png" width="250">
