@@ -8,15 +8,13 @@
 
 package com.example.tirza.soutetirza_pset4;
 
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -25,9 +23,10 @@ import java.util.Map;
 
 public class ShowContent extends AppCompatActivity {
     ListView listView;
-    ArrayAdapter<String> adapter;
+    CustomAdapter adapter;
     ArrayList<HashMap<String, String>> toDoList;
     ContentUpdater contentUpdater;
+    HashMap<String, Integer> statusHashMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,18 +45,40 @@ public class ShowContent extends AppCompatActivity {
                 return true;
             }
         });
-        setToDoList();
-        setCheckBoxes();
-    }
 
+        // Set OnItemClickListener so that items can be checked off
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Find the item that was clicked and change its status
+                String clickedItem = listView.getItemAtPosition(position).toString();
+                TextView clickedTextView = (TextView) view.findViewById(R.id.listViewItem);
+                // Find the current status of the clicked item
+                statusHashMap = statusMap();
+                int status = statusHashMap.get(clickedItem);
+
+                if (status == 1) {
+                    contentUpdater.updateStatus(clickedItem, 0);
+                    // Revert the text colour back to the original grey colour
+                    clickedTextView.setTextColor(Color.parseColor("#808080"));
+                } else {
+                    contentUpdater.updateStatus(clickedItem, 1);
+                    // Set the text colour to green
+                    clickedTextView.setTextColor(Color.parseColor("#006400"));
+                }
+            }
+        });
+        setToDoList();
+    }
 
     /** Creates a ListView that shows the to do list*/
     public void setToDoList() {
         DatabaseHelper databaseHelper = new DatabaseHelper(this);
         toDoList = databaseHelper.read();
         ArrayList<String> toDoArray = createToDoList();
+        statusHashMap = statusMap();
 
-        adapter = new ArrayAdapter<>(this, R.layout.row_view, R.id.listViewItem, toDoArray);
+        adapter = new CustomAdapter(this, R.layout.row_view, R.id.listViewItem, toDoArray, toDoList);
         listView.setAdapter(adapter);
     }
 
@@ -85,48 +106,9 @@ public class ShowContent extends AppCompatActivity {
         contentUpdater.addItem();
     }
 
-    /** Updates the database */
-    public void checkBoxChanged(View view) {
-        // Get the item that was clicked
-        RelativeLayout layout = (RelativeLayout) view.getParent();
-        TextView textView = (TextView) layout.getChildAt(1);
-        String clickedItem = textView.getText().toString();
-        CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox);
-
-        if (checkBox.isChecked()) {
-            contentUpdater.updateStatus(clickedItem, 1);
-        } else {
-            contentUpdater.updateStatus(clickedItem, 0);
-        }
-    }
-
-
-    /** Sets the checkboxes according to the status in the database */
-    public void setCheckBoxes() {
-        HashMap<String, Integer> statusHashMap = statusMap();
-        View view;
-        CheckBox checkBox;
-
-        for (int i = 0; i < listView.getCount(); i++) {
-            // Find the checkbox and item on this row
-            view = listView.getAdapter().getView(i, null, null);
-            checkBox = (CheckBox) view.findViewById(R.id.checkBox);
-            TextView textView = (TextView) view.findViewById(R.id.listViewItem);
-            String item = textView.getText().toString();
-            // Use the status HashMap to find the status of each item in the to do list
-            int status = statusHashMap.get(item);
-
-            // Set the checkbox to checked if the status is 1 (done)
-            if (status == 1) {
-                checkBox.setChecked(true);
-            }
-            adapter.notifyDataSetChanged();
-        }
-    }
-
     /** Creates a HashMap that holds an item as key and its status as value */
     HashMap<String, Integer> statusMap() {
-        HashMap<String, Integer> statusHashMap = new HashMap<>();
+        statusHashMap = new HashMap<>();
 
         // Loop through ArrayList
         for (HashMap<String, String> map : toDoList) {

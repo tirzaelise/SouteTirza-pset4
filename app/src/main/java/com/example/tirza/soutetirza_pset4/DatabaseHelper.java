@@ -71,7 +71,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
         return unique;
     }
 
-    /** Updates an item in teh database */
+    /** Updates an item in the database */
     void update(String item, long _id, int status) {
         SQLiteDatabase database = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
